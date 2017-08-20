@@ -20,6 +20,7 @@ class Formula
     public:
         vector<int> literals;
         vector<int> literal_frequency;
+        vector<int> literal_polarity;
         vector< vector<int> > clauses;
         int last_free_choice;
         Formula()
@@ -31,6 +32,7 @@ class Formula
             literals = f.literals;
             clauses = f.clauses;
             literal_frequency = f.literal_frequency;
+            literal_polarity = f.literal_polarity;
             last_free_choice = f.last_free_choice;
         }
 };
@@ -77,6 +79,8 @@ void SATSolverDPLL::initialize()
     formula.clauses.resize(clause_count);
     formula.literal_frequency.clear();
     formula.literal_frequency.resize(literal_count,0);
+    formula.literal_polarity.clear();
+    formula.literal_polarity.resize(literal_count,0);
     int literal;
     int count = 0;
     for(int i = 0; i < clause_count; i++)
@@ -89,11 +93,13 @@ void SATSolverDPLL::initialize()
             {
                 formula.clauses[i].push_back(2*(literal-1));
                 formula.literal_frequency[literal-1]++;
+                formula.literal_polarity[literal-1]++;
             }
             else if(literal < 0)
             {
                 formula.clauses[i].push_back(2*((-1)*literal-1)+1);
                 formula.literal_frequency[-1-literal]++;
+                formula.literal_polarity[-1-literal]--;
             }
             else
             {
@@ -126,7 +132,7 @@ int SATSolverDPLL::unit_propagate(Formula &f)
     bool unit_clause_found = false;
     if(f.clauses.size() == 0)
     {
-        return satisfied;
+        return Cat::satisfied;
     }
     do
     {
@@ -139,7 +145,7 @@ int SATSolverDPLL::unit_propagate(Formula &f)
                 f.literals[f.clauses[i][0]/2] = f.clauses[i][0]%2; // 0 - if true, 1 - if false
                 f.literal_frequency[f.clauses[i][0]/2] = -1;
                 int result = apply_transform(f, f.clauses[i][0]/2);
-                if(result == satisfied || result == unsatisfied)
+                if(result == Cat::satisfied || result == Cat::unsatisfied)
                 {
                     return result;
                 }
@@ -148,12 +154,12 @@ int SATSolverDPLL::unit_propagate(Formula &f)
             else if(f.clauses[i].size() == 0)
             {
             //    cout<<"Empty clause found in UP"<<endl;
-                return unsatisfied;
+                return Cat::unsatisfied;
             }
         }
     }while(unit_clause_found);
 //    cout<<"UP returning normally"<<endl;
-    return normal;
+    return Cat::normal;
 }
 
 // sort the clauses?
@@ -183,7 +189,7 @@ int SATSolverDPLL::apply_transform(Formula &f, int literal_to_apply)
                 i--;
                 if(f.clauses.size() == 0)
                 {
-                    return satisfied;
+                    return Cat::satisfied;
                 }
                 break;
             }
@@ -195,7 +201,7 @@ int SATSolverDPLL::apply_transform(Formula &f, int literal_to_apply)
                 {
         //            cout<<"Empty clause created in AT"<<endl;   
         //            cout<<"i: "<<i<<" j: "<<j+1<<endl;
-                    return unsatisfied;
+                    return Cat::unsatisfied;
                 }
                 break; ////
             }
@@ -211,7 +217,7 @@ int SATSolverDPLL::apply_transform(Formula &f, int literal_to_apply)
         }
         cout<<endl;
     }*/
-    return normal;
+    return Cat::normal;
 }
 
 int SATSolverDPLL::DPLL(Formula f)
@@ -229,12 +235,12 @@ int SATSolverDPLL::DPLL(Formula f)
         cout<<endl;
     }*/
     int result = unit_propagate(f);
-    if(result == satisfied)
+    if(result == Cat::satisfied)
     {
         show_result(f,result);
         return Cat::completed;
     }
-    else if(result == unsatisfied)
+    else if(result == Cat::unsatisfied)
     {
         return Cat::normal;
     }
@@ -254,15 +260,19 @@ int SATSolverDPLL::DPLL(Formula f)
             for(int j = 0; j < 2; j++)
             {
                 Formula new_f = f;
-                new_f.literals[i] = j;
+             //   new_f.literals[i] = j;
+                if(new_f.literal_frequency[i] > 0)
+                    new_f.literals[i] = j;
+                else
+                    new_f.literals[i] = (j+1)%2;
                 new_f.literal_frequency[i] = -1;
                 int transform_result = apply_transform(new_f,i);
-                if(transform_result == satisfied)
+                if(transform_result == Cat::satisfied)
                 { 
                     show_result(new_f, transform_result);
                     return Cat::completed;
                 }
-                else if(transform_result == unsatisfied)
+                else if(transform_result == Cat::unsatisfied)
                 {
                     return Cat::normal;
                 }
@@ -280,7 +290,7 @@ int SATSolverDPLL::DPLL(Formula f)
 
 void SATSolverDPLL::show_result(Formula &f, int result)
 {
-    if(result == satisfied)
+    if(result == Cat::satisfied)
     {
         cout<<"SAT"<<endl;
         for(int i = 0; i < f.literals.size(); i++)
@@ -294,11 +304,11 @@ void SATSolverDPLL::show_result(Formula &f, int result)
                 cout<<(i+1)<<" ";
             }
         }
-        cout<<endl;
+        cout<<endl; // is endl okay?
     }
     else
     {
-        cout<<"UNSAT"<<endl;
+        cout<<"UNSAT"<<endl; // is endl okay?
     }
 }
 
@@ -321,3 +331,8 @@ int main()
 
 // literal frequency instead of lexicographic
 // count polarity of each literal
+
+// Array for each literal containing list of clauses in which it is present
+// Each clause has a counter and a T/F marker
+// Global counter to count number of true clauses
+
