@@ -19,6 +19,7 @@ class Formula
 {
     public:
         vector<int> literals;
+        vector<int> literal_frequency;
         vector< vector<int> > clauses;
         int last_free_choice;
         Formula()
@@ -29,6 +30,7 @@ class Formula
         {
             literals = f.literals;
             clauses = f.clauses;
+            literal_frequency = f.literal_frequency;
             last_free_choice = f.last_free_choice;
         }
 };
@@ -37,7 +39,6 @@ class SATSolverDPLL
 {
     public:
         Formula formula;
-    ////    vector<int> literal_frequency;
         int literal_count;
         int clause_count;
         SATSolverDPLL() {}
@@ -70,12 +71,12 @@ void SATSolverDPLL::initialize()
     cin>>literal_count;
     cin>>clause_count;
     
-    formula.literals.empty();
+    formula.literals.clear();
     formula.literals.resize(literal_count,-1);
-    formula.clauses.empty();
+    formula.clauses.clear();
     formula.clauses.resize(clause_count);
-////    literal_frequency.empty();
-////    literal_frequency.resize(literal_count,0);
+    formula.literal_frequency.clear();
+    formula.literal_frequency.resize(literal_count,0);
     int literal;
     int count = 0;
     for(int i = 0; i < clause_count; i++)
@@ -87,12 +88,12 @@ void SATSolverDPLL::initialize()
             if(literal > 0)
             {
                 formula.clauses[i].push_back(2*(literal-1));
-    ////            literal_frequency[literal-1]++;
+                formula.literal_frequency[literal-1]++;
             }
             else if(literal < 0)
             {
                 formula.clauses[i].push_back(2*((-1)*literal-1)+1);
-   ////             literal_frequency[1-literal]++;
+                formula.literal_frequency[-1-literal]++;
             }
             else
             {
@@ -136,6 +137,7 @@ int SATSolverDPLL::unit_propagate(Formula &f)
             {
                 unit_clause_found = true;
                 f.literals[f.clauses[i][0]/2] = f.clauses[i][0]%2; // 0 - if true, 1 - if false
+                f.literal_frequency[f.clauses[i][0]/2] = -1;
                 int result = apply_transform(f, f.clauses[i][0]/2);
                 if(result == satisfied || result == unsatisfied)
                 {
@@ -236,15 +238,24 @@ int SATSolverDPLL::DPLL(Formula f)
     {
         return Cat::normal;
     }
-    for(int i = f.last_free_choice + 1; i < f.literals.size(); i++) ////
-    {
-        if(f.literals[i] == -1)
-        {
+ //   for(int i = f.last_free_choice + 1; i < f.literals.size(); i++) ////
+ //   {
+     //   if(f.literals[i] == -1)
+    //    { 
+            int i = distance(f.literal_frequency.begin(),max_element(f.literal_frequency.begin(),f.literal_frequency.end()));
+            int max_val = *max_element(f.literal_frequency.begin(),f.literal_frequency.end())   ;
+      /*      cout<<"I: "<<i<<" max : "<<max_val<<endl;
+            for(int l = 0; l < f.literal_frequency.size(); l++)
+            {
+                cout<<f.literal_frequency[l]<<" ";
+            }
+            cout<<endl;*/
             f.last_free_choice = i;
             for(int j = 0; j < 2; j++)
             {
                 Formula new_f = f;
                 new_f.literals[i] = j;
+                new_f.literal_frequency[i] = -1;
                 int transform_result = apply_transform(new_f,i);
                 if(transform_result == satisfied)
                 { 
@@ -261,9 +272,9 @@ int SATSolverDPLL::DPLL(Formula f)
                     return dpll_result;
                 }
             }
-            break;           
-        }
-    }
+    //        break;           
+ //       }
+ //   }
     return Cat::normal;
 }
 
