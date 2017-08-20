@@ -19,16 +19,17 @@ enum Cat
     cl_positive, // literal with positive polarity
     cl_negative, // literal with negative polarity
     // assignments
-    cl_no_assignment, // literal not present, so assignment not meaningful
-    cl_unassigned, // literal in clause not assigned
-    cl_true, // literal assigned true in clause
-    cl_false // literal assigned false in clause
+//    cl_no_assignment, // literal not present, so assignment not meaningful
+//    cl_unassigned, // literal in clause not assigned
+//    cl_true, // literal assigned true in clause
+//    cl_false // literal assigned false in clause
 } 
 
 // No need to store assignments in clauses
 // Need to check the order in which literals were forced - how about keeping a vector
 // that tracks the literal numbers in their forced order, and a counter that keeps the value of
 // the last free choice
+// Assigned status should be associated with literals, not literals within clauses
 
 enum Result
 {
@@ -42,7 +43,7 @@ class Clause
 {
     public:
         vector<int> literals;
-        vector<int> assignments;
+  //      vector<int> assignments;
         vector<int> polarity;
         int is_true;
         int is_true_because;
@@ -63,10 +64,12 @@ class SATSolverDPLL
     public:
         vector<int> literals;
         vector<Clause> clauses;
+        vector<int> choice_order;
         int clause_count;
         int true_clause_count;
         int literal_count;
-        SATSolverDPLL() {}
+        int last_free_choice;
+        SATSolverDPLL();
         void initialize();
         void solve();
         void unit_propagate();
@@ -76,6 +79,8 @@ void SATSolverDPLL::initialize()
 {
     char c;
     string s;
+    last_free_choice = -1;
+    choice_order.empty();
     while(true)
     {
         cin>>c;
@@ -101,7 +106,6 @@ void SATSolverDPLL::initialize()
     for(int i = 0; i < clause_count; i++)
     {
         clauses[i].literals.resize(literal_count,Cat::cl_not_present);
-        clauses[i].assignments.resize(literal_count,Cat::cl_no_assignment);
         clauses[i].polarity.resize(literal_count,Cat::cl_no_polarity);
         while(true)
         {
@@ -109,14 +113,12 @@ void SATSolverDPLL::initialize()
             if(literal > 0)
             {
                 clauses[i].literals[literal-1] = Cat::cl_present;
-                clauses[i].assignments[literal-1] = Cat::cl_unassigned;
                 clauses[i].polarity[literal-1] = Cat::cl_positive;
                 clauses[i].literals_left++;
             }
             else if(literal < 0)
             {
                 clauses[i].literals[literal-1] = Cat::cl_present;
-                clauses[i].assignments[literal-1] = Cat::cl_unassigned;
                 clauses[i].polarity[literal-1] = Cat::cl_negative;
                 clauses[i].literals_left++;
             }
@@ -136,14 +138,22 @@ int SATSolverDPLL::unit_propagate()
     {
         if(clauses[i].literals_left == 1)
         {
-            position = distance(clauses[i].assignments.begin(), find(clauses[i].assignments.begin(),clauses[i].assignments.end(),Cat::cl_unassigned));
-            if(clauses[i].polarity[position] = Cat::cl_positive)
+            for(int j = 0; j < clauses[i].literals.size(); j++)
             {
-                if(literals[position] != Cat::forced_false)
+                if(clauses[i].literals[j] == Cat::cl_present && literals[j] == Cat::unassigned)
                 {
-                    literals[position] = Cat::forced_true;
+                    if(clauses[i].polarity[j] == Cat::cl_positive)
+                    {
+                        literals[j] = Cat::forced_true;
+                    }
+                    else
+                    {
+                        literals[j] = Cat::forced_false;
+                    }
+                    choice_order.push_back(j);
                 }
-            }
+                else if(clauses[i].literals[j] == Cat::cl_present )
+            }  
         }
     }
 }
