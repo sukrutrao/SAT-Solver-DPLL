@@ -101,7 +101,7 @@ void SATSolverDPLL::initialize()
             }    
         }        
     }
-    cout<<"Clauses : "<<endl;
+ /*   cout<<"Clauses : "<<endl;
     for(int i = 0; i < formula.clauses.size(); i++)
     {
         cout<<"i: "<<i<<endl;
@@ -111,7 +111,7 @@ void SATSolverDPLL::initialize()
             cout<<formula.clauses[i][j]<<" ";
         }
         cout<<endl;
-    }
+    }*/
 }
 
 // do we change count to 0 if clauses becomes true?
@@ -141,6 +141,7 @@ int SATSolverDPLL::unit_propagate(Formula &f)
             }
             else if(f.clauses[i].size() == 0)
             {
+            //    cout<<"Empty clause found in UP"<<endl;
                 return unsatisfied;
             }
         }
@@ -155,8 +156,8 @@ int SATSolverDPLL::unit_propagate(Formula &f)
 int SATSolverDPLL::apply_transform(Formula &f, int literal_to_apply)
 {
     int value_to_apply = f.literals[literal_to_apply];
-    cout<<"VTA : "<<value_to_apply;
-    cout<<"LTA : "<<literal_to_apply;
+//    cout<<"VTA : "<<value_to_apply;
+//    cout<<"LTA : "<<literal_to_apply;
  /*   if(f.clauses.size() == 0)
     {
         return satisfied;
@@ -171,7 +172,7 @@ int SATSolverDPLL::apply_transform(Formula &f, int literal_to_apply)
         {
             if((2*literal_to_apply+value_to_apply) == f.clauses[i][j])
             {
-                cout<<"Yes, i : "<<i<<" j : "<<j<<endl;
+        //        cout<<"Yes, i : "<<i<<" j : "<<j<<endl;
                 f.clauses.erase(f.clauses.begin()+i);
                 i--;
                 if(f.clauses.size() == 0)
@@ -186,29 +187,29 @@ int SATSolverDPLL::apply_transform(Formula &f, int literal_to_apply)
                 j--;
                 if(f.clauses[i].size() == 0)
                 {
+        //            cout<<"Empty clause created in AT"<<endl;   
+        //            cout<<"i: "<<i<<" j: "<<j+1<<endl;
                     return unsatisfied;
                 }
             }
         }
     }
-    cout<<"At end of transform"<<endl;
+ /*   cout<<"At end of transform"<<endl;
     cout<<"Clauses : "<<endl;
     for(int i = 0; i < f.clauses.size(); i++)
     {
-        cout<<"i: "<<i<<endl;
         for(int j = 0; j < f.clauses[i].size(); j++)
         {
-            cout<<"j: "<<j<<" ";
             cout<<f.clauses[i][j]<<" ";
         }
         cout<<endl;
-    }
+    }*/
     return normal;
 }
 
 int SATSolverDPLL::DPLL(Formula f)
 {
-    cout<<"In DPLL"<<endl;
+/*    cout<<"In DPLL"<<endl;
     cout<<"Clauses : "<<endl;
     for(int i = 0; i < f.clauses.size(); i++)
     {
@@ -219,12 +220,16 @@ int SATSolverDPLL::DPLL(Formula f)
             cout<<f.clauses[i][j]<<" ";
         }
         cout<<endl;
-    }
+    }*/
     int result = unit_propagate(f);
-    if(result == satisfied || result == unsatisfied)
+    if(result == satisfied)
     {
         show_result(f,result);
         return Cat::completed;
+    }
+    else if(result == unsatisfied)
+    {
+        return Cat::normal;
     }
     for(int i = 0; i < f.literals.size(); i++)
     {
@@ -236,10 +241,14 @@ int SATSolverDPLL::DPLL(Formula f)
                 Formula new_f = f;
                 new_f.literals[i] = j;
                 int transform_result = apply_transform(new_f,i);
-                if(transform_result == satisfied || transform_result == unsatisfied)
+                if(transform_result == satisfied)
                 { 
                     show_result(new_f, transform_result);
                     return Cat::completed;
+                }
+                else if(transform_result == unsatisfied)
+                {
+                    return Cat::normal;
                 }
                 int dpll_result = DPLL(new_f);
                 if(dpll_result == Cat::completed)
