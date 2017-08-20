@@ -37,7 +37,7 @@ class SATSolverDPLL
 {
     public:
         Formula formula;
-        
+    ////    vector<int> literal_frequency;
         int literal_count;
         int clause_count;
         SATSolverDPLL() {}
@@ -74,7 +74,8 @@ void SATSolverDPLL::initialize()
     formula.literals.resize(literal_count,-1);
     formula.clauses.empty();
     formula.clauses.resize(clause_count);
-    
+////    literal_frequency.empty();
+////    literal_frequency.resize(literal_count,0);
     int literal;
     int count = 0;
     for(int i = 0; i < clause_count; i++)
@@ -86,10 +87,12 @@ void SATSolverDPLL::initialize()
             if(literal > 0)
             {
                 formula.clauses[i].push_back(2*(literal-1));
+    ////            literal_frequency[literal-1]++;
             }
             else if(literal < 0)
             {
                 formula.clauses[i].push_back(2*((-1)*literal-1)+1);
+   ////             literal_frequency[1-literal]++;
             }
             else
             {
@@ -97,6 +100,7 @@ void SATSolverDPLL::initialize()
      //           formula.clauses[i].push_back(0); // 1 - true, 2 - false
      //           formula.clauses[i].push_back(0);
      //           formula.clauses[i].push_back(count);
+     //           sort(formula.clauses[i].begin(),formula.clauses[i].end()); ////
                 break;
             }    
         }        
@@ -191,6 +195,7 @@ int SATSolverDPLL::apply_transform(Formula &f, int literal_to_apply)
         //            cout<<"i: "<<i<<" j: "<<j+1<<endl;
                     return unsatisfied;
                 }
+                break; ////
             }
         }
     }
@@ -231,7 +236,7 @@ int SATSolverDPLL::DPLL(Formula f)
     {
         return Cat::normal;
     }
-    for(int i = 0; i < f.literals.size(); i++)
+    for(int i = f.last_free_choice + 1; i < f.literals.size(); i++) ////
     {
         if(f.literals[i] == -1)
         {
@@ -302,3 +307,6 @@ int main()
     solver.solve();
     return 0;
 }
+
+// literal frequency instead of lexicographic
+// count polarity of each literal
