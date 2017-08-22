@@ -295,20 +295,23 @@ void SATSolverDPLL::show_result(Formula &f, int result)
         cout<<"SAT"<<endl;
         for(int i = 0; i < f.literals.size(); i++)
         {
+            if(i != 0)
+            {
+                cout<<" ";
+            }
             if(f.literals[i] != -1)
             {
-                cout<<pow(-1,f.literals[i])*(i+1)<<" ";
+                cout<<pow(-1,f.literals[i])*(i+1);
             }
             else
             {
-                cout<<(i+1)<<" ";
+                cout<<(i+1);
             }
         }
-        cout<<endl; // is endl okay?
     }
     else
     {
-        cout<<"UNSAT"<<endl; // is endl okay?
+        cout<<"UNSAT";
     }
 }
 
