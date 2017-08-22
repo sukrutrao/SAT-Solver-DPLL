@@ -32,19 +32,4 @@
 *.app
 
 *~
-U*
-u*
-CB*
-ai*
-f*
-B*
-Q*
-R*
-S*
-b*
-d*
-g*
-i*
-j*
-l*
-sw*
+local/

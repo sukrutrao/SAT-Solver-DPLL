@@ -63,17 +63,18 @@ class Formula
  */
 class SATSolverDPLL
 {
-    public:
+    private:
         Formula formula; // the initial formula given as input
         int literal_count; // the number of variables in the formula
-        int clause_count; // the number of clauses in the formula
-        SATSolverDPLL() {}
-        void initialize(); // intiializes the values
-        int unit_propagate(Formula &); // performs unit propagation
-        void solve(); // calls the solver
+        int clause_count; // the number of clauses in the formula        
+        int unit_propagate(Formula &); // performs unit propagation        
         int DPLL(Formula); // performs DPLL recursively
         int apply_transform(Formula &, int); // applies the value of the literal in every clause
         void show_result(Formula &, int); // displays the result
+    public:        
+        SATSolverDPLL() {}
+        void initialize(); // intiializes the values
+        void solve(); // calls the solver
 };
 
 /*
@@ -175,7 +176,7 @@ int SATSolverDPLL::unit_propagate(Formula &f)
             }
             else if(f.clauses[i].size() == 0) // if a given clause is empty
             {
-                return Cat::unsatisfied; // the formula is unsatisfiable
+                return Cat::unsatisfied; // the formula is unsatisfiable in this branch
             }
         }
     }while(unit_clause_found);
@@ -328,7 +329,7 @@ void SATSolverDPLL::solve()
     // any branch, so it is unsatisfiable
     if(result == Cat::normal)
     {
-        show_result(formula,Cat::unsatisfied);
+        show_result(formula,Cat::unsatisfied); // the argument formula is a dummy here, the result is UNSAT
     }
 }
 
