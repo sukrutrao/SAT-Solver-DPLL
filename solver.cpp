@@ -312,6 +312,7 @@ void SATSolverDPLL::show_result(Formula &f, int result)
                 cout<<(i+1);
             }
         }
+        cout<<"0";
     }
     else // if the formula is unsatisfiable
     {
