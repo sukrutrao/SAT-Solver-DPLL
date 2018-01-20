@@ -275,7 +275,7 @@ int SATSolverDPLL::DPLL(Formula f)
         }
         else if(transform_result == Cat::unsatisfied) // if formula not satisfied in this branch, return normally
         {
-            return Cat::normal;
+            continue;
         }
         int dpll_result = DPLL(new_f); // recursively call DPLL on the new formula
         if(dpll_result == Cat::completed) // propagate the result, if completed
@@ -312,7 +312,7 @@ void SATSolverDPLL::show_result(Formula &f, int result)
                 cout<<(i+1);
             }
         }
-        cout<<"0";
+        cout<<" 0";
     }
     else // if the formula is unsatisfiable
     {
