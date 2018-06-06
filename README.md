@@ -1,4 +1,4 @@
-# SAT-Solver-
+# SAT-Solver-DPLL
 
 [![Build Status](https://travis-ci.com/GoodDeeds/SAT-Solver-DPLL.svg?branch=master)](https://travis-ci.com/GoodDeeds/SAT-Solver-DPLL)
 
