@@ -1,4 +1,6 @@
-# SAT-Solver-DPLL
+# SAT-Solver-
+
+[![Build Status](https://travis-ci.com/GoodDeeds/SAT-Solver-DPLL.svg?branch=master)](https://travis-ci.com/GoodDeeds/SAT-Solver-DPLL)
 
 A SAT Solver based on the [Davis-Putnam-Logemann-Loveland (DPLL) algorithm](https://en.wikipedia.org/wiki/DPLL_algorithm).
 
