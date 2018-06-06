@@ -1,0 +1,6 @@
+language: cpp
+compiler:
+    - g++
+script:
+    - make
+    - make clean
