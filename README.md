@@ -62,7 +62,7 @@ SAT
 Here, the formuls is satisfiable. Variables `1` and `3` are assigned true, and variable `2` is assigned false. This is one possible satisfying assignment.
 
 ### License
-This project is licensed under the [MIT License](LICENSE.md).
+This project is licensed under the [MIT License](LICENSE).
 
 ### Author
 [Sukrut Rao](https://github.com/GoodDeeds/)
